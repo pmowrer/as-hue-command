@@ -1,0 +1,42 @@
+{
+  "name": "as-hue-command",
+  "version": "0.0.0",
+  "description": "Fluent, reactive JavaScript interface to the Philips Hue API.",
+  "main": "./src/index.js",
+  "dependencies": {
+    "lodash-es": "^4.3.0",
+    "request": "^2.55.0",
+    "rx": "^4.0.8"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.8",
+    "babel-plugin-transform-object-assign": "^6.5.0",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-register": "^6.5.1",
+    "chai": "~2.0.0",
+    "mocha": "^2.4.5",
+    "nock": "^7.2.2"
+  },
+  "scripts": {
+    "test": "mocha --watch --require ./babel-register.js --compilers js:babel-register"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pmowrer/as-hue-command.git"
+  },
+  "keywords": [
+    "philips",
+    "hue",
+    "reactive",
+    "fluent",
+    "rxjs",
+    "node",
+    "browser"
+  ],
+  "author": "Patrick Mowrer <pmowrer@gmail.com> (http://www.patrickmowrer.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pmowrer/as-hue-command/issues"
+  },
+  "homepage": "https://github.com/pmowrer/as-hue-command"
+}

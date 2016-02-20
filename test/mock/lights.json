@@ -1,0 +1,384 @@
+{
+  "1": {
+    "state": {
+      "on": false,
+      "bri": 1,
+      "hue": 11513,
+      "sat": 125,
+      "effect": "none",
+      "xy": [
+        0.4665,
+        0.3932
+      ],
+      "ct": 379,
+      "alert": "none",
+      "colormode": "xy",
+      "reachable": true
+    },
+    "type": "Extended color light",
+    "name": "Bedside Table",
+    "modelid": "LCT001",
+    "uniqueid": "00:17:88:01:00:be:27:4a-0b",
+    "swversion": "65003148",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "2": {
+    "state": {
+      "on": true,
+      "bri": 173,
+      "hue": 3753,
+      "sat": 118,
+      "effect": "none",
+      "xy": [
+        0.5438,
+        0.3691
+      ],
+      "alert": "none",
+      "colormode": "xy",
+      "reachable": true
+    },
+    "type": "Color light",
+    "name": "Bookcase",
+    "modelid": "LLC001",
+    "uniqueid": "00:17:88:01:00:06:e5:0a-0b",
+    "swversion": "1.0.1.4591",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "3": {
+    "state": {
+      "on": false,
+      "bri": 254,
+      "hue": 14910,
+      "sat": 144,
+      "effect": "none",
+      "xy": [
+        0.4596,
+        0.4105
+      ],
+      "ct": 369,
+      "alert": "none",
+      "colormode": "ct",
+      "reachable": false
+    },
+    "type": "Extended color light",
+    "name": "Hallway 1",
+    "modelid": "LCT001",
+    "uniqueid": "00:17:88:01:00:be:2e:e8-0b",
+    "swversion": "66013452",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "4": {
+    "state": {
+      "on": false,
+      "bri": 1,
+      "hue": 14945,
+      "sat": 142,
+      "effect": "none",
+      "xy": [
+        0.4583,
+        0.4101
+      ],
+      "ct": 365,
+      "alert": "none",
+      "colormode": "hs",
+      "reachable": true
+    },
+    "type": "Extended color light",
+    "name": "Bedroom Dresser R",
+    "modelid": "LCT001",
+    "uniqueid": "00:17:88:01:00:be:70:4a-0b",
+    "swversion": "65003148",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "5": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 14922,
+      "sat": 144,
+      "effect": "none",
+      "xy": [
+        0.4595,
+        0.4105
+      ],
+      "ct": 369,
+      "alert": "none",
+      "colormode": "ct",
+      "reachable": true
+    },
+    "type": "Extended color light",
+    "name": "Kitchen Table",
+    "modelid": "LCT001",
+    "uniqueid": "00:17:88:01:00:bf:ea:bc-0b",
+    "swversion": "66009663",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "6": {
+    "state": {
+      "on": false,
+      "bri": 254,
+      "hue": 14910,
+      "sat": 144,
+      "effect": "none",
+      "xy": [
+        0.4596,
+        0.4105
+      ],
+      "ct": 369,
+      "alert": "none",
+      "colormode": "ct",
+      "reachable": false
+    },
+    "type": "Extended color light",
+    "name": "Hallway 2",
+    "modelid": "LCT001",
+    "uniqueid": "00:17:88:01:00:bf:f4:05-0b",
+    "swversion": "66013452",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "7": {
+    "state": {
+      "on": false,
+      "bri": 1,
+      "hue": 14945,
+      "sat": 142,
+      "effect": "none",
+      "xy": [
+        0.4583,
+        0.4101
+      ],
+      "ct": 365,
+      "alert": "none",
+      "colormode": "hs",
+      "reachable": true
+    },
+    "type": "Extended color light",
+    "name": "Bedroom Dresser L",
+    "modelid": "LCT001",
+    "uniqueid": "00:17:88:01:00:bf:ec:46-0b",
+    "swversion": "66013452",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "8": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 1187,
+      "sat": 115,
+      "effect": "none",
+      "xy": [
+        0.5525,
+        0.3596
+      ],
+      "alert": "none",
+      "colormode": "hs",
+      "reachable": true
+    },
+    "type": "Color light",
+    "name": "LightStrips 1",
+    "modelid": "LST001",
+    "uniqueid": "00:17:88:01:00:cf:2a:8a-0b",
+    "swversion": "66013452",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "9": {
+    "state": {
+      "on": false,
+      "bri": 0,
+      "hue": 0,
+      "sat": 0,
+      "effect": "none",
+      "xy": [
+        0,
+        0
+      ],
+      "ct": 0,
+      "alert": "none",
+      "colormode": "hs",
+      "reachable": false
+    },
+    "type": "Extended color light",
+    "name": "Zombie",
+    "modelid": "LCT002",
+    "uniqueid": "00:17:88:01:00:e0:54:d9-0b",
+    "swversion": "66010673",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "10": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 14922,
+      "sat": 144,
+      "effect": "none",
+      "xy": [
+        0.4595,
+        0.4105
+      ],
+      "ct": 369,
+      "alert": "none",
+      "colormode": "ct",
+      "reachable": false
+    },
+    "type": "Extended color light",
+    "name": "Kitchen RF",
+    "modelid": "LCT002",
+    "uniqueid": "00:17:88:01:00:d6:3a:1c-0b",
+    "swversion": "66010673",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "11": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 14910,
+      "sat": 144,
+      "effect": "none",
+      "xy": [
+        0.4596,
+        0.4105
+      ],
+      "ct": 369,
+      "alert": "none",
+      "colormode": "ct",
+      "reachable": false
+    },
+    "type": "Extended color light",
+    "name": "Kitchen RN",
+    "modelid": "LCT001",
+    "uniqueid": "00:12:4b:00:03:41:04:6c-0b",
+    "swversion": "66013452",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  },
+  "12": {
+    "state": {
+      "on": true,
+      "bri": 254,
+      "hue": 14910,
+      "sat": 144,
+      "effect": "none",
+      "xy": [
+        0.4596,
+        0.4105
+      ],
+      "ct": 369,
+      "alert": "none",
+      "colormode": "ct",
+      "reachable": false
+    },
+    "type": "Extended color light",
+    "name": "Hallway 3",
+    "modelid": "LCT003",
+    "uniqueid": "00:17:88:01:00:f1:a1:e2-0b",
+    "swversion": "66013105",
+    "pointsymbol": {
+      "1": "none",
+      "2": "none",
+      "3": "none",
+      "4": "none",
+      "5": "none",
+      "6": "none",
+      "7": "none",
+      "8": "none"
+    }
+  }
+}

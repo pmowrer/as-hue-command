@@ -1,0 +1,9 @@
+[{
+	"success": {
+		"/lights/2/state/on": true
+	}
+}, {
+	"success": {
+		"/lights/2/state/bri": 100
+	}
+}]
