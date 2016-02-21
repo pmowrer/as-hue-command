@@ -2,7 +2,7 @@
 /* jshint mocha:true */
 /* jshint expr: true */ // For chai expressions
 
-import hue from '../src/index';
+import {connect} from '../src/connect';
 import {TRANSITION_DEFAULT} from '../src/constants';
 
 import LIGHTS from './mock/lights';
@@ -20,8 +20,9 @@ const IP = '192.168.0.3:80';
 // -- Tests
 describe('AsHueCommand', function() {
   beforeEach(function() {
+    this.hue = connect(IP);
     // Set transitionTime to default to avoid extra noise in PUTs.
-    hue.transitionTime = TRANSITION_DEFAULT;
+    this.hue.transitionTime = TRANSITION_DEFAULT;
     this.request = nock(`http://${IP}`);
   });
 
@@ -37,14 +38,14 @@ describe('AsHueCommand', function() {
     });
 
     it('should get all lights', function(done) {
-      hue.lights.all().value.subscribe(() => {
+      this.hue.lights.all().value.subscribe(() => {
         this.request.done();
         done();
       });
     });
 
     it('should add an `id` field to each light', function(done) {
-      hue.lights.all().value.subscribe(data => {
+      this.hue.lights.all().value.subscribe(data => {
         let diff = _.difference(_.keys(data['1']), _.keys(LIGHTS['1']));
         expect(diff).to.eql(['id']);
         done();
@@ -52,7 +53,7 @@ describe('AsHueCommand', function() {
     });
 
     it(`should get all light names`, function(done) {
-      hue.lights.all().names().subscribe(names => {
+      this.hue.lights.all().names().subscribe(names => {
         expect(names).to.deep.equal([
           'Bedside Table',
           'Bookcase',
@@ -80,7 +81,7 @@ describe('AsHueCommand', function() {
         .get(`/api/as-hue-command/lights/1`)
         .reply(200, LIGHTS['1']);
 
-      hue.lights.get(1).value.subscribe(data => {
+      this.hue.lights.get(1).value.subscribe(data => {
         expect(data).to.deep.equal(Object.assign({ id:1 }, LIGHTS['1']));
         this.request.done();
         done();
@@ -92,7 +93,7 @@ describe('AsHueCommand', function() {
         .get(`/api/as-hue-command/lights`)
         .reply(200, LIGHTS);
 
-      hue.lights.get('Hallway 1').value.subscribe(data => {
+      this.hue.lights.get('Hallway 1').value.subscribe(data => {
         expect(data).to.deep.equal(Object.assign({ id: 3 }, LIGHTS['3']));
         this.request.done();
         done();
@@ -104,7 +105,7 @@ describe('AsHueCommand', function() {
         .get(`/api/as-hue-command/lights/2`)
         .reply(200, LIGHTS['2']);
 
-      hue.lights.get(2).name().subscribe(name => {
+      this.hue.lights.get(2).name().subscribe(name => {
         expect(name).to.equal('Bookcase');
         this.request.done();
         done();
@@ -119,7 +120,7 @@ describe('AsHueCommand', function() {
         .put(`/api/as-hue-command/lights/2`)
         .reply(200, {});
 
-      hue.lights.get('Bookcase').name('Bedroom').subscribe(result => {
+      this.hue.lights.get('Bookcase').name('Bedroom').subscribe(result => {
         expect(result).to.equal(newName);
         this.request.done();
         done();
@@ -134,7 +135,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, {});
 
-      hue.lights.get(2).name('Bedroom').subscribe(result => {
+      this.hue.lights.get(2).name('Bedroom').subscribe(result => {
         expect(result).to.equal(newName);
         this.request.done();
         done();
@@ -146,7 +147,7 @@ describe('AsHueCommand', function() {
         .get(`/api/as-hue-command/lights`)
         .reply(200, LIGHTS);
 
-      hue.lights.get('Bedroom Dresser R').isOn.subscribe(result => {
+      this.hue.lights.get('Bedroom Dresser R').isOn.subscribe(result => {
         expect(result).to.equal(false);
         this.request.done();
         done();
@@ -160,7 +161,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, []);
 
-      hue.lights.get(1).on().subscribe(() => {
+      this.hue.lights.get(1).on().subscribe(() => {
         this.request.done();
         done();
       });
@@ -173,7 +174,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, []);
 
-      hue.lights.get(2).off().subscribe(() => {
+      this.hue.lights.get(2).off().subscribe(() => {
         this.request.done();
         done();
       });
@@ -186,7 +187,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, []);
 
-      hue.lights.get(3).toggle(true).subscribe(() => {
+      this.hue.lights.get(3).toggle(true).subscribe(() => {
         this.request.done();
         done();
       });
@@ -201,7 +202,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, `[{"success":{"/lights/12/state/on":true}}]`);
 
-      hue.lights.get('Zombie').toggle(true).subscribe(value => {
+      this.hue.lights.get('Zombie').toggle(true).subscribe(value => {
         expect(value).to.be.true;
         this.request.done();
         done();
@@ -216,7 +217,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, STATE);
 
-      hue.lights.get(3)
+      this.hue.lights.get(3)
         .state({
           on: true,
           bri: 100
@@ -237,7 +238,7 @@ describe('AsHueCommand', function() {
         .get(`/api/as-hue-command/lights/10`)
         .reply(200, LIGHTS[10]);
 
-      hue.lights.get(10).brightness().subscribe(value => {
+      this.hue.lights.get(10).brightness().subscribe(value => {
         expect(value).to.equal(254);
         this.request.done();
         done();
@@ -253,7 +254,7 @@ describe('AsHueCommand', function() {
         })
         .reply(200, `[{"success":{"/lights/12/state/bri":50}}]`);
 
-      hue.lights.get('Hallway 3').brightness(50).subscribe(value => {
+      this.hue.lights.get('Hallway 3').brightness(50).subscribe(value => {
         expect(value).to.equal(50);
         this.request.done();
         done();

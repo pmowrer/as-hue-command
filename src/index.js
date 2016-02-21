@@ -14,8 +14,9 @@ const DEFAULT_OPTIONS = {
   transitionTime: TRANSITION_NONE
 };
 
-class Hue {
-  constructor() {
+export class Hue {
+  constructor(connection) {
+    this.connection = connection;
     this.options = DEFAULT_OPTIONS;
   }
 
@@ -29,37 +30,41 @@ class Hue {
 
   get lights() {
     return {
-      all: () => new Lights(getAllLights()),
-      get: id => new Light(getLight(id), this.options)
+      all: () => new Lights(getAllLights(this.connection)),
+      get: id => new Light(getLight(this.connection, id), this.connection, this.options)
     };
   }
 }
 
-const hue = new Hue();
-export default hue;
-
-function getLight(id) {
+function getLight(connection, id) {
   if (typeof id === 'string') {
-    return hue.lights.all().value.map(lights => {
-      return Object.keys(lights)
-      .filter(key => lights[key].name === id)
-      .map(key => lights[key])
-      .pop();
-    });
+    return getAllLights(connection)
+      .map(lights => {
+        return Object.keys(lights)
+          .filter(key => lights[key].name === id)
+          .map(key => lights[key])
+          .pop();
+      });
   } else {
-    return Request
-      .get(`${ENDPOINTS.LIGHTS}/${id}`)
-      .map(light => addLightId(light, id))
-      .startWith({
-        id
+    return connection
+      .flatMap(ip => {
+        return Request
+          .get(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`)
+          .map(light => addLightId(light, id))
+          .startWith({
+            id
+          });
       });
   }
 }
 
-function getAllLights() {
-  return Request
-    .get(ENDPOINTS.LIGHTS)
-    .map(data => mapValues(data, addLightId));
+function getAllLights(connection) {
+  return connection
+    .flatMap(ip => {
+      return Request
+        .get(`http://${ip}${ENDPOINTS.LIGHTS}`)
+        .map(data => mapValues(data, addLightId));
+    });
 }
 
 function addLightId(light, id) {

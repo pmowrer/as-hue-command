@@ -6,9 +6,10 @@ const ENDPOINTS = {
 };
 
 export class Light {
-  constructor(source, options) {
-    this.options = options;
+  constructor(source, connection, options) {
     this.source = source;
+    this.connection = connection;
+    this.options = options;
   }
 
   get value() {
@@ -21,12 +22,15 @@ export class Light {
         .take(1)
         .map(light => light.id)
         .flatMap(id => {
-          return Request
-            .put(`${ENDPOINTS.LIGHTS}/${id}`, {
-              name: value
-            })
-            // Give back value since Api doesn't respond w/ anything.
-            .map(() => value);
+          return this.connection
+            .flatMap(ip => {
+              return Request
+                .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`, {
+                  name: value
+                })
+                // Give back value since Api doesn't respond w/ anything.
+                .map(() => value);
+            });
         });
     } else {
       return this.value.map(light => light.name);
@@ -70,17 +74,20 @@ export class Light {
       .take(1)
       .map(light => light.id)
       .flatMap(id => {
-        return Request
-          .put(`${ENDPOINTS.LIGHTS}/${id}/state`, options)
-          .map(data => data.reduce((light, result) => {
-            let obj = result['success'];
-            let attribute = Object.keys(obj)[0];
-            let value = obj[attribute];
+        return this.connection
+          .flatMap(ip => {
+            return Request
+              .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}/state`, options)
+              .map(data => data.reduce((light, result) => {
+                let obj = result['success'];
+                let attribute = Object.keys(obj)[0];
+                let value = obj[attribute];
 
-            light[attribute.slice(attribute.lastIndexOf('/') + 1)] = value;
-            light.id = id;
-            return light;
-          }, {}));
+                light[attribute.slice(attribute.lastIndexOf('/') + 1)] = value;
+                light.id = id;
+                return light;
+              }, {}));
+          });
       });
   }
 }
