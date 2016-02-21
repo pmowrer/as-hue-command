@@ -18,20 +18,14 @@ export class Light {
 
   name(value) {
     if (value) {
-      return this.source
-        .take(1)
-        .map(light => light.id)
-        .flatMap(id => {
-          return this.connection
-            .flatMap(ip => {
-              return Request
-                .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`, {
-                  name: value
-                })
-                // Give back value since Api doesn't respond w/ anything.
-                .map(() => value);
-            });
-        });
+      return this.put((ip, id) => {
+        return Request
+          .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`, {
+            name: value
+          })
+          // Give back value since Api doesn't respond w/ anything.
+          .map(() => value);
+      });
     } else {
       return this.value.map(light => light.name);
     }
@@ -70,26 +64,24 @@ export class Light {
       options.transitiontime = this.options.transitionTime;
     }
 
-    return this.source
-      .take(1)
-      .map(light => light.id)
-      .flatMap(id => {
-        return this.connection
-          .flatMap(ip => {
-            return Request
-              .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}/state`, options)
-              .map(data => data.reduce((light, result) => {
-                let obj = result['success'];
-                let attribute = Object.keys(obj)[0];
-                let value = obj[attribute];
+    return this.put((ip, id) => {
+      return Request
+        .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}/state`, options)
+        .map(data => data.reduce((light, result) => {
+          let obj = result['success'];
+          let attribute = Object.keys(obj)[0];
+          let value = obj[attribute];
 
-                light[attribute.slice(attribute.lastIndexOf('/') + 1)] = value;
-                light.id = id;
-                return light;
-              }, {}));
-          });
-      });
+          light[attribute.slice(attribute.lastIndexOf('/') + 1)] = value;
+          light.id = id;
+          return light;
+        }, {}));
+    });
+  }
+
+  put(request) {
+    return this.source
+      .take(1) // There could be an initializer value in source, saving a GET.
+      .flatMap(light => this.connection.flatMap(ip => request(ip, light.id)));
   }
 }
-
-export default Light;
