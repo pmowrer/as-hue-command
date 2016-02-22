@@ -20,6 +20,11 @@ const IP = '192.168.0.3:80';
 // -- Tests
 describe('AsHueCommand', function() {
   beforeEach(function() {
+    // Not intuative, but throws if unexpected calls are made,
+    // though only if they're on a different domain than what has been mocked.
+    // https://github.com/pgte/nock/issues/415#issuecomment-159209456
+    nock.disableNetConnect();
+
     this.hue = connect(IP);
     // Set transitionTime to default to avoid extra noise in PUTs.
     this.hue.transitionTime = TRANSITION_DEFAULT;
@@ -135,9 +140,16 @@ describe('AsHueCommand', function() {
         })
         .reply(200, {});
 
-      this.hue.lights.get(2).name('Bedroom').subscribe(result => {
-        expect(result).to.equal(newName);
-        this.request.done();
+      // Request that shouldn't happen.
+      this.request
+        .get(`/api/as-hue-command/lights/3`)
+        .reply(200, []);
+
+      this.hue.lights.get(2).name('Bedroom').subscribe(() => {
+        // No great way to test that requests didn't happen in nock
+        expect(this.request.pendingMocks()).to.include(
+          'GET http://192.168.0.3:80/api/as-hue-command/lights/3'
+        );
         done();
       });
     });
@@ -189,6 +201,27 @@ describe('AsHueCommand', function() {
 
       this.hue.lights.get(3).toggle(true).subscribe(() => {
         this.request.done();
+        done();
+      });
+    });
+
+    it('should toggle a light with just a put', function(done) {
+      this.request
+        .put(`/api/as-hue-command/lights/3/state`, {
+          on: true
+        })
+        .reply(200, []);
+
+      // Request that shouldn't happen.
+      this.request
+        .get(`/api/as-hue-command/lights/3`)
+        .reply(200, []);
+
+      this.hue.lights.get(3).toggle(true).subscribe(() => {
+        // No great way to test that requests didn't happen in nock
+        expect(this.request.pendingMocks()).to.include(
+          'GET http://192.168.0.3:80/api/as-hue-command/lights/3'
+        );
         done();
       });
     });
