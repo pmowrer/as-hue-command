@@ -17,7 +17,6 @@ export class Request {
 }
 
 function makeRequest(url, options = {}) {
-  let subject = new Rx.AsyncSubject();
   let requestOptions = {
     withCredentials:  false,
     uri:              `${url}`,
@@ -26,14 +25,23 @@ function makeRequest(url, options = {}) {
     json:             true
   };
 
-  request(requestOptions, (error, response, body) => {
-    if (error) {
-      subject.onError(error);
-    } else {
-      subject.onNext(body);
-      subject.onCompleted();
-    }
-  });
+  if (options.once) {
+    // Request is only made once during entire observable sequence.
+    return doRequest(new Rx.AsyncSubject(), requestOptions);
+  } else {
+    return Rx.Observable.create(observer => doRequest(observer, requestOptions));
+  }
 
-  return subject;
+  function doRequest(observer, options) {
+    request(requestOptions, (error, response, body) => {
+      if (error) {
+        observer.onError(error);
+      } else {
+        observer.onNext(body);
+        observer.onCompleted();
+      }
+    });
+
+    return observer;
+  }
 }

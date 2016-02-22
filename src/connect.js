@@ -11,7 +11,9 @@ export function connect(ip = '') {
     connection = Rx.Observable.just(ip);
   } else {
     connection = Request
-      .get(NUPNP_URL)
+      .get(NUPNP_URL, {
+        once: true
+      })
       // TODO: Support multiple bridges
       .map(response => response[0].internalipaddress);
   }

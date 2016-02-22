@@ -1,3 +1,4 @@
+import * as Rx from 'rx';
 import {Request}    from './request';
 import {Light}      from './light';
 import {Lights}     from './lights';
@@ -37,6 +38,8 @@ export class Hue {
 
 function getLight(connection, id) {
   if (typeof id === 'string') {
+    // When the id is a string, treat it as a match against a light's name.
+    // Must fetch all lights to determine which matches (if any).
     return getAllLights(connection)
       .map(lights => {
         return Object.keys(lights)
@@ -44,16 +47,22 @@ function getLight(connection, id) {
           .map(key => lights[key])
           .pop();
       });
-  } else {
-    return connection
-      .flatMap(ip => {
-        return Request
-          .get(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`)
-          .map(light => addLightId(light, id))
-          .startWith({
-            id
-          });
-      });
+  } else if (typeof id === 'number') {
+    // As an int `id` is valid state, treat it as the initial state of the light
+    // since certain operations only require `id` (e.g. PUTs). That way we're not
+    // making unnecessary GET calls.
+    return Rx.Observable
+      .zip(
+        connection.repeat(),
+        Rx.Observable
+          .just(ip => Request
+            .get(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`)
+            .map(light => addLightId(light, id))
+          )
+          .startWith(() => { return Rx.Observable.just({ id }); }),
+          (ip, func) => func(ip)
+        )
+        .flatMap(x => x);
   }
 }
 
