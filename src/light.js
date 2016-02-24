@@ -1,9 +1,5 @@
 import {Request} from './request';
-import {TRANSITION_DEFAULT} from './constants';
-
-const ENDPOINTS = {
-  LIGHTS: '/api/as-hue-command/lights'
-};
+import {TRANSITION_DEFAULT, ENDPOINTS} from './constants';
 
 export class Light {
   constructor(source, connection, options) {

@@ -3,12 +3,7 @@ import {Request}    from './request';
 import {Light}      from './light';
 import {Lights}     from './lights';
 import {mapValues}  from 'lodash-es';
-
-import {TRANSITION_NONE} from './constants';
-
-const ENDPOINTS = {
-  LIGHTS: '/api/as-hue-command/lights'
-};
+import {TRANSITION_NONE, ENDPOINTS} from './constants';
 
 const DEFAULT_OPTIONS = {
   transitionTime: TRANSITION_NONE
