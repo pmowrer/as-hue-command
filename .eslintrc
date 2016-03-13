@@ -13,6 +13,11 @@ rules:
   semi:
     - 2
     - always
+  no-console:
+    - 2
+    - allow:
+      - warn
+      - error
 env:
   es6: true
   browser: true

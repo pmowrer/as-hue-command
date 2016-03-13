@@ -14,6 +14,13 @@ export class Request {
       body
     }));
   }
+
+  static post(url, body, options) {
+    return makeRequest(url, Object.assign({}, options, {
+      method: 'POST',
+      body
+    }));
+  }
 }
 
 function makeRequest(url, options = {}) {
@@ -32,7 +39,7 @@ function makeRequest(url, options = {}) {
     return Rx.Observable.create(observer => doRequest(observer, requestOptions));
   }
 
-  function doRequest(observer, options) {
+  function doRequest(observer) {
     request(requestOptions, (error, response, body) => {
       if (error) {
         observer.onError(error);

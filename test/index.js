@@ -25,7 +25,9 @@ describe('AsHueCommand', function() {
     // https://github.com/pgte/nock/issues/415#issuecomment-159209456
     nock.disableNetConnect();
 
-    this.hue = connect(IP);
+    // Dummy configuration
+    this.hue = connect({ ip: IP, username: 'as-hue-command' });
+
     // Set transitionTime to default to avoid extra noise in PUTs.
     this.hue.transitionTime = TRANSITION_DEFAULT;
     this.request = nock(`http://${IP}`);

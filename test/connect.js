@@ -20,25 +20,25 @@ describe('Connect', function() {
   });
 
   describe('when calling connect', function() {
-    describe('without passing arguments', function() {
+    describe('without passing IP', function() {
       describe('and N-UPnP lookup is successful', function() {
         beforeEach(function() {
           this.IP = '192.168.0.3';
 
           this.getNupnpRequest = () => {
-            return nock(`https://www.meethue.com`)
+            return nock('https://www.meethue.com')
               .get('/api/nupnp')
               .reply(200, `[{"id":"001788fffe09fe16","internalipaddress":"${this.IP}"}]`);
           };
 
-          // To keep tests decoupled, provide generic request matching any IP.
+          // To keep tests decoupled, provide generic request matching any path.
           this.getApiRequest = () => {
             return nock(new RegExp(`${this.IP}`))
-              .get(/.*/)
+              .get(/as-hue-command\/.*/)
               .reply(200, []);
           };
 
-          this.hue = connect();
+          this.hue = connect({ username: 'as-hue-command' });
         });
 
         it('returns the hue object configured with the given IP', function(done) {
@@ -52,7 +52,7 @@ describe('Connect', function() {
           });
         });
 
-        it(`doesn't call N-UPnP again on new requests`, function(done) {
+        it("doesn't call N-UPnP again on new requests", function(done) {
           this.request1 = this.getNupnpRequest();
           this.request2 = this.getApiRequest();
 
@@ -66,7 +66,7 @@ describe('Connect', function() {
 
             this.request3 = this.getApiRequest();
 
-            this.hue.lights.get(1).value.subscribe(data => {
+            this.hue.lights.get(1).value.subscribe(() => {
               this.request3.done();
               done();
             });
@@ -74,10 +74,10 @@ describe('Connect', function() {
         });
 
         // Integration test. Reproduced problem that wasn't caught by lights tests alone.
-        it(`doesn't force light-by-index GET call on light PUT`, function(done) {
+        it("doesn't force light-by-index GET call on light PUT", function(done) {
           this.request1 = this.getNupnpRequest();
           this.request2 = nock(new RegExp(`${this.IP}`))
-            .put(/.*/)
+            .put(/as-hue-command\/.*/)
             .reply(200, []);
 
           // This call shouldn't happen.
@@ -89,7 +89,7 @@ describe('Connect', function() {
 
             // No great way to test that requests didn't happen in nock
             expect(this.request3.pendingMocks()).to.include(
-              `GET ${new RegExp(`${this.IP}`).toString()}\/\/.*\/`
+              `GET ${new RegExp(`${this.IP}`).toString()}\/\/as-hue-command\\/.*\/`
             );
             done();
           });
@@ -102,12 +102,84 @@ describe('Connect', function() {
         const IP = '192.168.0.10';
 
         this.request = nock(new RegExp(`${IP}`))
-          .get(/.*/)
+          .get(/as-hue-command\/.*/)
           .reply(200, []);
 
-        connect(IP).lights.all().value.subscribe(() => {
+        connect({ ip: IP, username: 'as-hue-command' }).lights.all().value.subscribe(() => {
           this.request.done();
           done();
+        });
+      });
+    });
+
+    describe('without passing a username', function() {
+      beforeEach(function() {
+        this.IP = '192.168.0.15';
+        this.ERROR = '[{"error":{"type":101,"address":"","description":"link button not pressed"}}]';
+
+        // To keep tests decoupled, provide generic request matching any path.
+        this.getPost = () => {
+          return nock(new RegExp(`${this.IP}`))
+            .post('/api', {
+              devicetype: /as-hue-command#.*/
+            });
+        };
+      });
+
+      describe('and the link button has been pressed', function() {
+        it('creates a new user', function(done) {
+          this.request = this.getPost()
+            .reply(200, '[{"success":{"username": "83b7780291a6ceffbe0bd049104df"}}]')
+            .get(/api\/83b7780291a6ceffbe0bd049104df\/.*/)
+            .reply(200, []);
+
+          connect({ ip: this.IP }).lights.all().value.subscribe(() => {
+            this.request.done();
+            done();
+          });
+        });
+      });
+
+      describe("and the link button hasn't been pressed", function() {
+        it('retries every x secs for y times', function(done) {
+          const RETRIES = {
+            total: 5,
+            timeout: 0
+          };
+
+          this.request = this.getPost()
+            .times(RETRIES.total + 1)
+            .reply(200, this.ERROR);
+
+          connect({ ip: this.IP, retries: RETRIES }).lights.all().value.subscribe(
+            () => {},
+            () => {
+              this.request.done();
+              done();
+            }
+          );
+        });
+
+        it('throws Error 101 (Bridge button not pressed)', function(done) {
+          const RETRIES = {
+            total: 0,
+            timeout: 0
+          };
+
+          this.request = this.getPost()
+            .reply(200, this.ERROR);
+
+          connect({ ip: this.IP, retries: RETRIES }).lights.all().value.subscribe(
+            () => {},
+            error => {
+              expect(error.message).to.equal([
+                'Failed to create a new user for as-hue-command.',
+                'The Philis Hue Bridge button must be pressed before calling connect().'
+              ].join(' '));
+
+              this.request.done();
+              done();
+            });
         });
       });
     });

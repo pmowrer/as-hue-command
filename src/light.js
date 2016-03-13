@@ -14,9 +14,9 @@ export class Light {
 
   name(value) {
     if (value) {
-      return this.put((ip, id) => {
+      return this.put((getUrl, id) => {
         return Request
-          .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`, {
+          .put(getUrl(`${ENDPOINTS.LIGHTS}/${id}`), {
             name: value
           })
           // Give back value since Api doesn't respond w/ anything.
@@ -60,9 +60,9 @@ export class Light {
       options.transitiontime = this.options.transitionTime;
     }
 
-    return this.put((ip, id) => {
+    return this.put((getUrl, id) => {
       return Request
-        .put(`http://${ip}${ENDPOINTS.LIGHTS}/${id}/state`, options)
+        .put(getUrl(`${ENDPOINTS.LIGHTS}/${id}/state`), options)
         .map(data => data.reduce((light, result) => {
           let obj = result['success'];
           let attribute = Object.keys(obj)[0];

@@ -50,12 +50,12 @@ function getLight(connection, id) {
       .zip(
         connection.repeat(),
         Rx.Observable
-          .just(ip => Request
-            .get(`http://${ip}${ENDPOINTS.LIGHTS}/${id}`)
+          .just(getUrl => Request
+            .get(getUrl(`${ENDPOINTS.LIGHTS}/${id}`))
             .map(light => addLightId(light, id))
           )
           .startWith(() => { return Rx.Observable.just({ id }); }),
-          (ip, func) => func(ip)
+          (getUrl, func) => func(getUrl)
         )
         .flatMap(x => x);
   }
@@ -63,9 +63,9 @@ function getLight(connection, id) {
 
 function getAllLights(connection) {
   return connection
-    .flatMap(ip => {
+    .flatMap(getUrl => {
       return Request
-        .get(`http://${ip}${ENDPOINTS.LIGHTS}`)
+        .get(getUrl(ENDPOINTS.LIGHTS))
         .map(data => mapValues(data, addLightId));
     });
 }
