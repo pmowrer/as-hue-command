@@ -12,54 +12,62 @@ const DEFAULT_RETRIES = {
 
 export function connect({username, ip, retries = DEFAULT_RETRIES} = {}) {
   let connection;
+  let ip$, connection$;
 
   if (ip) {
-    connection = Rx.Observable.just(ip);
+    ip$ = Rx.Observable.just(ip);
   } else {
-    connection = Request
+    ip$ = Request
       .get(NUPNP_URL, {
         once: true
       })
       .map(response => response[0].internalipaddress);
   }
 
-  if (username) {
-    connection = connection.map(ip => getUrlFactory(username, ip));
-  } else {
-    connection = connection
-      .flatMap(ip => {
-        return Request.post(`http://${ip}/api`, {
-          devicetype: `as-hue-command#${getPlatform()}`
-        })
-        .map(result => {
-          result = result[0];
+  // Create an observable that emits the username and ip of the Bridge connection.
+  connection$ = Rx.Observable.zip(
+    username ?
+      Rx.Observable.just(username) :
+      requestUsername(ip$, retries),
+    ip$
+  )
+  .map(([username, ip]) => getUrlFactory(username, ip));
 
-          if (result.error) {
-            throw parseError(result.error);
-          } else {
-            return getUrlFactory(result.success.username, ip);
-          }
-        })
-        .retryWhen(errors =>
-          errors
-            .scan((errorCount, err) => {
-              if (errorCount >= retries.total) {
-                throw err;
-              }
+  return new Hue(connection$);
+}
 
-              console.warn([
-                'Bridge button must be pressed for as-hue-command',
-                `${err.name} to create a user. Retrying in ${retries.timeout}ms.`
-              ].join(' '));
+function requestUsername(ip$, retries) {
+  return ip$
+    .flatMap(ip => {
+      return Request.post(`http://${ip}/api`, {
+        devicetype: `as-hue-command#${getPlatform()}`
+      })
+      .map(result => {
+        result = result[0];
 
-              return errorCount + 1;
-            }, 0)
-            .delay(retries.timeout)
-        );
-      });
-  }
+        if (result.error) {
+          throw parseError(result.error);
+        } else {
+          return result.success.username;
+        }
+      })
+      .retryWhen(errors =>
+        errors
+          .scan((errorCount, err) => {
+            if (errorCount >= retries.total) {
+              throw err;
+            }
 
-  return new Hue(connection);
+            console.warn([
+              'Bridge button must be pressed for as-hue-command',
+              `${err.name} to create a user. Retrying in ${retries.timeout}ms.`
+            ].join(' '));
+
+            return errorCount + 1;
+          }, 0)
+          .delay(retries.timeout)
+      );
+    });
 }
 
 function getUrlFactory(username, ip) {
