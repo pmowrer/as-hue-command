@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* jshint mocha:true */
 
-import {connect} from '../src/connect';
+import {connect} from './connect';
 import nock from 'nock';
 import chai from 'chai';
 const expect = chai.expect;

@@ -1,8 +1,8 @@
 /* eslint-env node */
 
 import * as Rx from 'rx';
-import {Hue} from './hue';
-import {Request} from './request';
+import {Hue} from '../hue';
+import {Request} from '../request';
 
 const NUPNP_URL = 'https://www.meethue.com/api/nupnp';
 const DEFAULT_RETRIES = {

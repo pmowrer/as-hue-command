@@ -1,5 +1,5 @@
-import {Request} from './request';
-import {TRANSITION_DEFAULT, ENDPOINTS} from './constants';
+import {Request} from '../request';
+import {TRANSITION_DEFAULT, ENDPOINTS} from '../constants';
 
 export class Light {
   constructor(source, connection, options) {

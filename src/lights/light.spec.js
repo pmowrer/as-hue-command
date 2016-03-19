@@ -2,11 +2,11 @@
 /* jshint mocha:true */
 /* jshint expr: true */ // For chai expressions
 
-import {connect} from '../src/connect';
-import {TRANSITION_DEFAULT} from '../src/constants';
+import {connect} from '../connect/connect';
+import {TRANSITION_DEFAULT} from '../constants';
 
-import LIGHTS from './mock/lights';
-import STATE from './mock/state';
+import LIGHTS from './fixtures/lights';
+import STATE from './fixtures/state';
 
 import _ from 'lodash-es';
 
@@ -18,7 +18,7 @@ const expect = chai.expect;
 const IP = '192.168.0.3:80';
 
 // -- Tests
-describe('AsHueCommand', function() {
+describe('Lights', function() {
   beforeEach(function() {
     // Not intuative, but throws if unexpected calls are made,
     // though only if they're on a different domain than what has been mocked.
@@ -40,7 +40,7 @@ describe('AsHueCommand', function() {
   describe('all lights', function() {
     beforeEach(function() {
       this.request
-        .get(`/api/as-hue-command/lights`)
+        .get('/api/as-hue-command/lights')
         .reply(200, LIGHTS);
     });
 
@@ -59,7 +59,7 @@ describe('AsHueCommand', function() {
       });
     });
 
-    it(`should get all light names`, function(done) {
+    it('should get all light names', function(done) {
       this.hue.lights.all().names().subscribe(names => {
         expect(names).to.deep.equal([
           'Bedside Table',
@@ -85,7 +85,7 @@ describe('AsHueCommand', function() {
   describe('light by index', function() {
     it('should get a light by index', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights/1`)
+        .get('/api/as-hue-command/lights/1')
         .reply(200, LIGHTS['1']);
 
       this.hue.lights.get(1).value.subscribe(data => {
@@ -97,7 +97,7 @@ describe('AsHueCommand', function() {
 
     it('should get a light by name', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights`)
+        .get('/api/as-hue-command/lights')
         .reply(200, LIGHTS);
 
       this.hue.lights.get('Hallway 1').value.subscribe(data => {
@@ -109,7 +109,7 @@ describe('AsHueCommand', function() {
 
     it('should get a light\'s name', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights/2`)
+        .get('/api/as-hue-command/lights/2')
         .reply(200, LIGHTS['2']);
 
       this.hue.lights.get(2).name().subscribe(name => {
@@ -122,9 +122,9 @@ describe('AsHueCommand', function() {
     it('should rename a light', function(done) {
       const newName = 'Bedroom';
       this.request
-        .get(`/api/as-hue-command/lights`)
+        .get('/api/as-hue-command/lights')
         .reply(200, LIGHTS)
-        .put(`/api/as-hue-command/lights/2`)
+        .put('/api/as-hue-command/lights/2')
         .reply(200, {});
 
       this.hue.lights.get('Bookcase').name('Bedroom').subscribe(result => {
@@ -137,14 +137,14 @@ describe('AsHueCommand', function() {
     it('should rename a light with just a put', function(done) {
       const newName = 'Bedroom';
       this.request
-        .put(`/api/as-hue-command/lights/2`, {
+        .put('/api/as-hue-command/lights/2', {
           name: newName
         })
         .reply(200, {});
 
       // Request that shouldn't happen.
       this.request
-        .get(`/api/as-hue-command/lights/3`)
+        .get('/api/as-hue-command/lights/3')
         .reply(200, []);
 
       this.hue.lights.get(2).name('Bedroom').subscribe(() => {
@@ -158,7 +158,7 @@ describe('AsHueCommand', function() {
 
     it('should determine whehter a light is on', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights`)
+        .get('/api/as-hue-command/lights')
         .reply(200, LIGHTS);
 
       this.hue.lights.get('Bedroom Dresser R').isOn.subscribe(result => {
@@ -170,7 +170,7 @@ describe('AsHueCommand', function() {
 
     it('should turn a light on', function(done) {
       this.request
-        .put(`/api/as-hue-command/lights/1/state`, {
+        .put('/api/as-hue-command/lights/1/state', {
           on: true
         })
         .reply(200, []);
@@ -183,7 +183,7 @@ describe('AsHueCommand', function() {
 
     it('should turn a light off', function(done) {
       this.request
-        .put(`/api/as-hue-command/lights/2/state`, {
+        .put('/api/as-hue-command/lights/2/state', {
           on: false
         })
         .reply(200, []);
@@ -196,7 +196,7 @@ describe('AsHueCommand', function() {
 
     it('should toggle a light', function(done) {
       this.request
-        .put(`/api/as-hue-command/lights/3/state`, {
+        .put('/api/as-hue-command/lights/3/state', {
           on: true
         })
         .reply(200, []);
@@ -209,14 +209,14 @@ describe('AsHueCommand', function() {
 
     it('should toggle a light with just a put', function(done) {
       this.request
-        .put(`/api/as-hue-command/lights/3/state`, {
+        .put('/api/as-hue-command/lights/3/state', {
           on: true
         })
         .reply(200, []);
 
       // Request that shouldn't happen.
       this.request
-        .get(`/api/as-hue-command/lights/3`)
+        .get('/api/as-hue-command/lights/3')
         .reply(200, []);
 
       this.hue.lights.get(3).toggle(true).subscribe(() => {
@@ -230,12 +230,12 @@ describe('AsHueCommand', function() {
 
     it('should toggle a light by name', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights`)
+        .get('/api/as-hue-command/lights')
         .reply(200, LIGHTS)
-        .put(`/api/as-hue-command/lights/9/state`, {
+        .put('/api/as-hue-command/lights/9/state', {
           on: true
         })
-        .reply(200, `[{"success":{"/lights/12/state/on":true}}]`);
+        .reply(200, '[{"success":{"/lights/12/state/on":true}}]');
 
       this.hue.lights.get('Zombie').toggle(true).subscribe(value => {
         expect(value).to.be.true;
@@ -246,7 +246,7 @@ describe('AsHueCommand', function() {
 
     it('should merge state update responses into a lights object', function(done) {
       this.request
-        .put(`/api/as-hue-command/lights/3/state`, {
+        .put('/api/as-hue-command/lights/3/state', {
           on: true,
           bri: 100
         })
@@ -270,7 +270,7 @@ describe('AsHueCommand', function() {
 
     it('should get a light\'s brightness', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights/10`)
+        .get('/api/as-hue-command/lights/10')
         .reply(200, LIGHTS[10]);
 
       this.hue.lights.get(10).brightness().subscribe(value => {
@@ -282,12 +282,12 @@ describe('AsHueCommand', function() {
 
     it('should set a light\'s brightness', function(done) {
       this.request
-        .get(`/api/as-hue-command/lights`)
+        .get('/api/as-hue-command/lights')
         .reply(200, LIGHTS)
-        .put(`/api/as-hue-command/lights/12/state`, {
+        .put('/api/as-hue-command/lights/12/state', {
           bri: 50
         })
-        .reply(200, `[{"success":{"/lights/12/state/bri":50}}]`);
+        .reply(200, '[{"success":{"/lights/12/state/bri":50}}]');
 
       this.hue.lights.get('Hallway 3').brightness(50).subscribe(value => {
         expect(value).to.equal(50);

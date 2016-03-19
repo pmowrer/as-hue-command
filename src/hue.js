@@ -1,7 +1,7 @@
 import * as Rx from 'rx';
 import {Request}    from './request';
-import {Light}      from './light';
-import {Lights}     from './lights';
+import {Light}      from './lights/light';
+import {Lights}     from './lights/lights';
 import {mapValues}  from 'lodash-es';
 import {TRANSITION_NONE, ENDPOINTS} from './constants';
 

@@ -19,7 +19,7 @@
     "nock": "^7.2.2"
   },
   "scripts": {
-    "test": "mocha --watch --require ./babel-register.js --compilers js:babel-register"
+    "test": "mocha \"src/**/*.spec.js\" --watch --require ./babel-register.js --compilers js:babel-register"
   },
   "repository": {
     "type": "git",
