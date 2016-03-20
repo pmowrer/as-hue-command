@@ -1,11 +1,12 @@
-import {Request} from '../request';
-import {TRANSITION_DEFAULT, ENDPOINTS} from '../constants';
+import {pick}       from 'lodash-es';
+import {Request}    from '../request';
+import {getUrl}     from '../selectors/selectors';
+import {ENDPOINTS}  from '../constants';
 
 export class Light {
-  constructor(source, connection, options) {
+  constructor(source, connection) {
     this.source = source;
     this.connection = connection;
-    this.options = options;
   }
 
   get value() {
@@ -14,9 +15,9 @@ export class Light {
 
   name(value) {
     if (value) {
-      return this.put((getUrl, id) => {
+      return this.put((state, id) => {
         return Request
-          .put(getUrl(`${ENDPOINTS.LIGHTS}/${id}`), {
+          .put(getUrl(state, `${ENDPOINTS.LIGHTS}/${id}`), {
             name: value
           })
           // Give back value since Api doesn't respond w/ anything.
@@ -56,13 +57,12 @@ export class Light {
   }
 
   state(options) {
-    if (this.options.transitionTime !== TRANSITION_DEFAULT) {
-      options.transitiontime = this.options.transitionTime;
-    }
-
-    return this.put((getUrl, id) => {
-      return Request
-        .put(getUrl(`${ENDPOINTS.LIGHTS}/${id}/state`), options)
+    return this.put((state, id) =>
+      Request
+        .put(
+          getUrl(state, `${ENDPOINTS.LIGHTS}/${id}/state`),
+          Object.assign({}, options, pick(state, 'transitiontime'))
+        )
         .map(data => data.reduce((light, result) => {
           let obj = result['success'];
           let attribute = Object.keys(obj)[0];
@@ -71,13 +71,17 @@ export class Light {
           light[attribute.slice(attribute.lastIndexOf('/') + 1)] = value;
           light.id = id;
           return light;
-        }, {}));
-    });
+        }, {}))
+    );
   }
 
   put(request) {
     return this.source
       .take(1) // There could be an initializer value in source, saving a GET.
-      .flatMap(light => this.connection.flatMap(ip => request(ip, light.id)));
+      .flatMap(light =>
+        this.connection.flatMap(
+          ({state}) => request(state.get(), light.id)
+        )
+      );
   }
 }

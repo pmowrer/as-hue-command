@@ -1,17 +1,18 @@
 /* eslint-env node */
-
 import * as Rx from 'rx';
 import {Hue} from '../hue';
 import {Request} from '../request';
+import {stateFactory} from '../state/state';
 
 const NUPNP_URL = 'https://www.meethue.com/api/nupnp';
-const DEFAULT_RETRIES = {
-  total: 30,
-  timeout: 1000
-};
+const {state, state$} = stateFactory();
+const OPTIONS = state.get();
 
-export function connect({username, ip, retries = DEFAULT_RETRIES} = {}) {
-  let connection;
+export function connect({
+  username = OPTIONS.username,
+  ip = OPTIONS.ip,
+  retries = OPTIONS.retries
+} = {}) {
   let ip$, connection$;
 
   if (ip) {
@@ -31,9 +32,10 @@ export function connect({username, ip, retries = DEFAULT_RETRIES} = {}) {
       requestUsername(ip$, retries),
     ip$
   )
-  .map(([username, ip]) => getUrlFactory(username, ip));
+  .do(([username, ip]) => state$.onNext({ username, ip }))
+  .map(() => { return { state, state$ };});
 
-  return new Hue(connection$);
+  return new Hue(connection$, { state, state$ });
 }
 
 function requestUsername(ip$, retries) {
@@ -68,12 +70,6 @@ function requestUsername(ip$, retries) {
           .delay(retries.timeout)
       );
     });
-}
-
-function getUrlFactory(username, ip) {
-  return function getUrl(path) {
-    return `http://${ip}/api/${username}/${path}`;
-  };
 }
 
 function getPlatform() {

@@ -1,32 +1,35 @@
-import * as Rx from 'rx';
+import * as Rx      from 'rx';
+import {mapValues}  from 'lodash-es';
+import {ENDPOINTS}  from './constants';
 import {Request}    from './request';
 import {Light}      from './lights/light';
 import {Lights}     from './lights/lights';
-import {mapValues}  from 'lodash-es';
-import {TRANSITION_NONE, ENDPOINTS} from './constants';
-
-const DEFAULT_OPTIONS = {
-  transitionTime: TRANSITION_NONE
-};
+import {getUrl}     from './selectors/selectors';
 
 export class Hue {
-  constructor(connection) {
+  constructor(connection, {state, state$}) {
     this.connection = connection;
-    this.options = DEFAULT_OPTIONS;
+    this.state = state;
+    this.state$ = state$;
   }
 
   get transitionTime() {
-    return this.options.transitionTime;
+    return this.state.get().transitiontime;
   }
 
   set transitionTime(value) {
-    return this.options.transitionTime = value;
+    this.state$.onNext({
+      transitiontime: value
+    });
   }
 
   get lights() {
     return {
       all: () => new Lights(getAllLights(this.connection)),
-      get: id => new Light(getLight(this.connection, id), this.connection, this.options)
+      get: id => new Light(
+        getLight(this.connection, id),
+        this.connection
+      )
     };
   }
 }
@@ -50,12 +53,12 @@ function getLight(connection, id) {
       .zip(
         connection.repeat(),
         Rx.Observable
-          .just(getUrl => Request
-            .get(getUrl(`${ENDPOINTS.LIGHTS}/${id}`))
+          .just(state => Request
+            .get(getUrl(state, `${ENDPOINTS.LIGHTS}/${id}`))
             .map(light => addLightId(light, id))
           )
           .startWith(() => { return Rx.Observable.just({ id }); }),
-          (getUrl, func) => func(getUrl)
+          ({state}, func) => func(state.get())
         )
         .flatMap(x => x);
   }
@@ -63,9 +66,9 @@ function getLight(connection, id) {
 
 function getAllLights(connection) {
   return connection
-    .flatMap(getUrl => {
+    .flatMap(({state}) => {
       return Request
-        .get(getUrl(ENDPOINTS.LIGHTS))
+        .get(getUrl(state.get(), ENDPOINTS.LIGHTS))
         .map(data => mapValues(data, addLightId));
     });
 }
