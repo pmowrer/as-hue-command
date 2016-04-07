@@ -4,8 +4,8 @@
   "description": "Fluent, reactive JavaScript interface to the Philips Hue API.",
   "main": "./src/index.js",
   "dependencies": {
+    "axios": "^0.9.1",
     "lodash-es": "^4.3.0",
-    "request": "^2.55.0",
     "rx": "^4.0.8"
   },
   "devDependencies": {

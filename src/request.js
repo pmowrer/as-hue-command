@@ -1,5 +1,5 @@
 import * as Rx from 'rx';
-import request from 'request';
+import axios from 'axios';
 
 export class Request {
   static get(url, options) {
@@ -25,11 +25,9 @@ export class Request {
 
 function makeRequest(url, options = {}) {
   let requestOptions = {
-    withCredentials:  false,
-    uri:              `${url}`,
-    method:           options.method,
-    body:             options.body,
-    json:             true
+    url:    `${url}`,
+    method: options.method,
+    data:   options.body
   };
 
   if (options.once) {
@@ -40,14 +38,14 @@ function makeRequest(url, options = {}) {
   }
 
   function doRequest(observer) {
-    request(requestOptions, (error, response, body) => {
-      if (error) {
-        observer.onError(error);
-      } else {
-        observer.onNext(body);
+    axios(requestOptions)
+      .then(({data}) => {
+        observer.onNext(data);
         observer.onCompleted();
-      }
-    });
+      })
+      .catch(error => {
+        observer.onError(error);
+      });
 
     return observer;
   }
