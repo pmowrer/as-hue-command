@@ -2,33 +2,38 @@
 import * as Rx from 'rx';
 import {DEFAULT_OPTIONS} from './defaults';
 
-const localStorage = global.localStorage;
+function getStorage() {
+  const localStorage = global.localStorage;
 
-// `storageOption` is `localStorage`, if available, else `false`.
-// https://mathiasbynens.be/notes/localstorage-pattern#comment-7
-const storageOption = !!function() {
-  var result;
-  var uid = +new Date;
-  try {
-    localStorage.setItem(uid, uid);
-    result = localStorage.getItem(uid) == uid;
-    localStorage.removeItem(uid);
-    return result;
-  } catch (exception) {
-    return () => {};
-  }
-}() && localStorage;
+  // `storageOption` is `localStorage`, if available, else `false`.
+  // https://mathiasbynens.be/notes/localstorage-pattern#comment-7
+  return !!function() {
+    var result;
+    var uid = +new Date;
+    try {
+      localStorage.setItem(uid, uid);
+      result = localStorage.getItem(uid) == uid;
+      localStorage.removeItem(uid);
+      return result;
+    } catch (exception) {
+      return () => {};
+    }
+  }() && localStorage;
+}
 
 const storage = {
   getItem: name => {
+    const storageOption = getStorage();
     return storageOption ? JSON.parse(storageOption.getItem(name)) : {};
   },
   setItem: (name, value) => {
+    const storageOption = getStorage();
     if (storageOption) {
       storageOption.setItem(name, JSON.stringify(value));
     }
   },
   removeItem: name => {
+    const storageOption = getStorage();
     if (storageOption) {
       storageOption.removeItem(name);
     }
