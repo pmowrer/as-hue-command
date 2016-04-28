@@ -13,29 +13,25 @@ export function connect({
   ip = OPTIONS.ip,
   retries = OPTIONS.retries
 } = {}) {
-  let ip$, connection$;
-
-  if (ip) {
-    ip$ = Rx.Observable.just(ip);
-  } else {
-    ip$ = Request
-      .get(NUPNP_URL, {
-        once: true
-      })
-      .map(response => response[0].internalipaddress);
-  }
+  const ip$ = ip ? Rx.Observable.just(ip) : requestIp();
+  const username$ = username ?
+    Rx.Observable.just(username) : requestUsername(ip$, retries);
 
   // Create an observable that emits the username and ip of the Bridge connection.
-  connection$ = Rx.Observable.zip(
-    username ?
-      Rx.Observable.just(username) :
-      requestUsername(ip$, retries),
-    ip$
-  )
-  .do(([username, ip]) => state$.onNext({ username, ip }))
-  .map(() => { return { state, state$ };});
+  const connection$ = Rx.Observable
+    .zip(username$, ip$)
+    .do(([username, ip]) => state$.onNext({ username, ip }))
+    .map(() => ({ state, state$ }));
 
   return new Hue(connection$, { state, state$ });
+}
+
+function requestIp() {
+  return Request
+    .get(NUPNP_URL, {
+      once: true
+    })
+    .map(response => response[0].internalipaddress);
 }
 
 function requestUsername(ip$, retries) {
