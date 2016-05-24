@@ -7,8 +7,8 @@ import {Lights}     from './lights/lights';
 import {getUrl}     from './selectors/selectors';
 
 export class Hue {
-  constructor(connection, {state, state$}) {
-    this.connection = connection;
+  constructor(connection$, {state, state$}) {
+    this.connection$ = connection$;
     this.state = state;
     this.state$ = state$;
   }
@@ -25,10 +25,10 @@ export class Hue {
 
   get lights() {
     return {
-      all: () => new Lights(getAllLights(this.connection)),
+      all: () => new Lights(getAllLights(this.connection$)),
       get: id => new Light(
-        getLight(this.connection, id),
-        this.connection
+        getLight(this.connection$, id),
+        this.connection$
       )
     };
   }
