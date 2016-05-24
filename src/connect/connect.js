@@ -1,8 +1,10 @@
 /* eslint-env node */
-import * as Rx from 'rx';
-import {Hue} from '../hue';
-import {Request} from '../request';
+import * as Rx        from 'rx';
+import {Hue}          from '../hue';
+import {Request}      from '../request';
 import {stateFactory} from '../state/state';
+import {ENDPOINTS}    from '../constants';
+import {getUrl}       from '../selectors/selectors';
 
 const NUPNP_URL = 'https://www.meethue.com/api/nupnp';
 const {state, state$} = stateFactory();
@@ -16,21 +18,26 @@ export function connect({
   const ip$ = ip ? Rx.Observable.just(ip) : requestIp();
   const username$ = username ?
     Rx.Observable.just(username) : requestUsername(ip$, retries);
+  const usernameAndIp$ = Rx.Observable.zip(username$, ip$);
 
   // Create an observable that emits the username and ip of the Bridge connection.
-  const connection$ = Rx.Observable
-    .zip(username$, ip$)
-    .do(([username, ip]) => state$.onNext({ username, ip }))
-    .map(() => ({ state, state$ }));
+  const connection$ = usernameAndIp$
+    .flatMap(([username, ip]) =>
+      requestConfig(username, ip)
+        .map(config => ({ username, ip, config }))
+        .catch(() => { throw new Error(`Unable to connect to ${ip}.`); })
+    )
+    .do(({username, ip, config}) => state$.onNext({ username, ip, config }))
+    .map(() => ({ state, state$ }))
+    .replay(1)
+    .refCount();
 
   return new Hue(connection$, { state, state$ });
 }
 
 function requestIp() {
   return Request
-    .get(NUPNP_URL, {
-      once: true
-    })
+    .get(NUPNP_URL, { once: true})
     .map(response => response[0].internalipaddress);
 }
 
@@ -66,6 +73,11 @@ function requestUsername(ip$, retries) {
           .delay(retries.timeout)
       );
     });
+}
+
+function requestConfig(username, ip) {
+  return Request
+    .get(getUrl({ username, ip}, ENDPOINTS.CONFIG), { once: true });
 }
 
 function getPlatform() {
